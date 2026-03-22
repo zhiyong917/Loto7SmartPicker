@@ -1,0 +1,305 @@
+<Window x:Class="Loto7SmartPicker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Loto7SmartPicker"
+        mc:Ignorable="d"
+        Title="Loto7 Smart Picker"
+        Height="640" Width="960"
+        MinWidth="780" MinHeight="500"
+        Background="#F0F2F5"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <!-- ================================================================
+         ウィンドウ全体レイアウト（3 行: ヘッダー / 本体 / ステータスバー）
+    ================================================================ -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>   <!-- ヘッダーバー -->
+            <RowDefinition Height="*"/>    <!-- 本体（左パネル＋右パネル） -->
+            <RowDefinition Height="30"/>   <!-- ステータスバー -->
+        </Grid.RowDefinitions>
+
+        <!-- ============================================================
+             行 0 : ヘッダーバー
+        ============================================================ -->
+        <Border Grid.Row="0" Background="{StaticResource DarkBrush}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                <!-- アプリアイコン代わりの装飾テキスト -->
+                <Border Background="#2980B9" CornerRadius="4"
+                        Padding="8,4" Margin="0,0,10,0">
+                    <TextBlock Text="L7" FontSize="14" FontWeight="Bold"
+                               Foreground="White"/>
+                </Border>
+                <TextBlock Text="Loto7 Smart Picker"
+                           FontSize="16" FontWeight="SemiBold"
+                           Foreground="White" VerticalAlignment="Center"/>
+                <TextBlock Text="  — 選号補助ツール"
+                           FontSize="12" Foreground="#90A4AE"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ============================================================
+             行 1 : 本体（左操作パネル ＋ 右結果パネル）
+        ============================================================ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ============================================================
+                 左パネル : 選号設定
+            ============================================================ -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    Margin="10,10,5,10"
+                    BorderBrush="#DDDFE2"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Padding="0,0,2,0">
+                    <StackPanel Margin="18,16,18,16">
+
+                        <!-- セクションタイトル -->
+                        <TextBlock Text="選号設定"
+                                   Style="{StaticResource SectionTitleStyle}"/>
+
+                        <!-- 選号モード -->
+                        <TextBlock Text="選号モード" Style="{StaticResource LabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding PickModes}"
+                                  SelectedItem="{Binding SelectedPickMode}"
+                                  Height="32"
+                                  FontSize="12"
+                                  Margin="0,0,0,14"/>
+
+                        <!-- 生成注数 -->
+                        <TextBlock Text="生成注数" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding GenerateCount, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InputTextBoxStyle}"
+                                 Margin="0,0,0,4"/>
+                        <TextBlock Text="1〜100 の整数を入力"
+                                   Style="{StaticResource HintStyle}"/>
+
+                        <!-- 固定番号 -->
+                        <TextBlock Text="固定番号" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding FixedNumbers, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InputTextBoxStyle}"
+                                 Margin="0,0,0,4"/>
+                        <TextBlock Text="半角カンマ区切りで入力  例: 3,8,15"
+                                   Style="{StaticResource HintStyle}"/>
+
+                        <!-- 区切り線 -->
+                        <Separator Margin="0,4,0,12" Background="#EEEEEE"/>
+
+                        <!-- 生成オプション -->
+                        <TextBlock Text="生成オプション" Style="{StaticResource LabelStyle}"/>
+
+                        <CheckBox Content="連番が多すぎないようにする"
+                                  IsChecked="{Binding AvoidConsecutive}"
+                                  FontSize="12" Foreground="#444"
+                                  Margin="2,0,0,10"/>
+                        <CheckBox Content="奇偶バランスを保つ"
+                                  IsChecked="{Binding KeepOddEvenBalance}"
+                                  FontSize="12" Foreground="#444"
+                                  Margin="2,0,0,10"/>
+                        <CheckBox Content="異なる区間をカバーする"
+                                  IsChecked="{Binding CoverDifferentRanges}"
+                                  FontSize="12" Foreground="#444"
+                                  Margin="2,0,0,18"/>
+
+                        <!-- 区切り線 -->
+                        <Separator Margin="0,0,0,16" Background="#EEEEEE"/>
+
+                        <!-- アクションボタン群 -->
+                        <Button Content="号码を生成する"
+                                Command="{Binding GenerateCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="0,0,0,8"/>
+
+                        <Button Content="クリア"
+                                Command="{Binding ClearCommand}"
+                                Style="{StaticResource NeutralButtonStyle}"
+                                Margin="0,0,0,8"/>
+
+                        <Button Content="結果を保存"
+                                Command="{Binding SaveCommand}"
+                                Style="{StaticResource SuccessButtonStyle}"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- ============================================================
+                 右パネル : 生成結果
+            ============================================================ -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    Margin="5,10,10,10"
+                    BorderBrush="#DDDFE2"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <Grid Margin="18,16,18,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 右パネルタイトル -->
+                    <TextBlock Grid.Row="0"
+                               Text="生成結果"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                    <!-- サブテキスト -->
+                    <TextBlock Grid.Row="1"
+                               Text="今回生成した選号結果がここに表示されます（1〜37 から 7 つを選択）"
+                               FontSize="11"
+                               Foreground="#AAAAAA"
+                               Margin="0,0,0,12"/>
+
+                    <!-- 結果 DataGrid -->
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Tickets}"
+                              Style="{StaticResource ResultGridStyle}"
+                              ColumnHeaderStyle="{StaticResource GridHeaderStyle}"
+                              CellStyle="{StaticResource GridCellStyle}"
+                              RowStyle="{StaticResource GridRowStyle}">
+
+                        <DataGrid.Columns>
+
+                            <!-- 通し番号 -->
+                            <DataGridTextColumn Header="No"
+                                               Binding="{Binding No}"
+                                               Width="48">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#888888"/>
+                                        <Setter Property="Padding"    Value="10,0"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 選択番号 -->
+                            <DataGridTextColumn Header="Numbers"
+                                               Binding="{Binding Numbers}"
+                                               Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontFamily"  Value="Consolas, Courier New"/>
+                                        <Setter Property="FontWeight"  Value="SemiBold"/>
+                                        <Setter Property="Foreground"  Value="#2C3E50"/>
+                                        <Setter Property="Padding"     Value="10,0"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 奇偶比 -->
+                            <DataGridTextColumn Header="奇偶比"
+                                               Binding="{Binding OddEvenRatio}"
+                                               Width="70">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment"   Value="Center"/>
+                                        <Setter Property="Foreground"          Value="#555555"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 区間サマリ -->
+                            <DataGridTextColumn Header="区間"
+                                               Binding="{Binding RangeSummary}"
+                                               Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment"   Value="Center"/>
+                                        <Setter Property="Foreground"          Value="#555555"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 連番情報 -->
+                            <DataGridTextColumn Header="連番"
+                                               Binding="{Binding ConsecutiveInfo}"
+                                               Width="60">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment"   Value="Center"/>
+                                        <Setter Property="Foreground"          Value="#555555"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================
+             行 2 : ステータスバー
+        ============================================================ -->
+        <StatusBar Grid.Row="2"
+                   Background="{StaticResource DarkBrush}"
+                   Height="30">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel LastChildFill="True"/>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+
+            <!-- 右端にステータスメッセージ -->
+            <StatusBarItem DockPanel.Dock="Right">
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="#90A4AE"
+                           FontSize="11"
+                           Margin="0,0,10,0"/>
+            </StatusBarItem>
+
+            <!-- 区切り -->
+            <Separator DockPanel.Dock="Right"
+                       Background="#455A64"
+                       Width="1" Margin="4,6"/>
+
+            <!-- 予想金額 -->
+            <StatusBarItem DockPanel.Dock="Right">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="予想金額: "
+                               Foreground="#B0BEC5" FontSize="11"/>
+                    <TextBlock Text="{Binding StatusCost, StringFormat='¥{0:N0}'}"
+                               Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                </StackPanel>
+            </StatusBarItem>
+
+            <!-- 区切り -->
+            <Separator DockPanel.Dock="Right"
+                       Background="#455A64"
+                       Width="1" Margin="4,6"/>
+
+            <!-- 注数 -->
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal" Margin="6,0">
+                    <TextBlock Text="注数: "
+                               Foreground="#B0BEC5" FontSize="11"/>
+                    <TextBlock Text="{Binding StatusTicketCount}"
+                               Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                    <TextBlock Text=" 注"
+                               Foreground="#B0BEC5" FontSize="11"/>
+                </StackPanel>
+            </StatusBarItem>
+
+        </StatusBar>
+    </Grid>
+</Window>
