@@ -130,7 +130,15 @@
 
                         <Button Content="結果を保存"
                                 Command="{Binding SaveCommand}"
-                                Style="{StaticResource SuccessButtonStyle}"/>
+                                Style="{StaticResource SuccessButtonStyle}"
+                                Margin="0,0,0,16"/>
+
+                        <!-- 历史 CSV インポート -->
+                        <Separator Margin="0,0,0,12" Background="#EEEEEE"/>
+
+                        <Button Content="导入历史 CSV"
+                                Command="{Binding ImportHistoryCsvCommand}"
+                                Style="{StaticResource NeutralButtonStyle}"/>
 
                     </StackPanel>
                 </ScrollViewer>
@@ -147,9 +155,11 @@
                     CornerRadius="6">
                 <Grid Margin="18,16,18,16">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>      <!-- タイトル -->
+                        <RowDefinition Height="Auto"/>      <!-- ヒント -->
+                        <RowDefinition Height="3*" MinHeight="100"/>   <!-- 選号 DataGrid -->
+                        <RowDefinition Height="Auto"/>      <!-- 分析セクションヘッダー -->
+                        <RowDefinition Height="2*" MinHeight="160"/>   <!-- 分析コンテンツ -->
                     </Grid.RowDefinitions>
 
                     <!-- 右パネルタイトル -->
@@ -244,6 +254,132 @@
                         </DataGrid.Columns>
 
                     </DataGrid>
+
+                    <!-- ============================================================
+                         历史分析セクション ヘッダー（Row 3）
+                    ============================================================ -->
+                    <Border Grid.Row="3"
+                            BorderBrush="#E0E6EE" BorderThickness="0,1,0,0"
+                            Padding="0,10,0,6"
+                            Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="历史分析結果"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#2C3E50"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding AnalysisRecordCount, StringFormat='導入: {0}'}"
+                                       FontSize="11" Foreground="#7F8C8D"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding HasAnalysisData,
+                                                    Converter={StaticResource BoolToVisibility}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ============================================================
+                         历史分析セクション コンテンツ（Row 4）
+                    ============================================================ -->
+                    <Border Grid.Row="4"
+                            Background="#F8FAFC"
+                            BorderBrush="#E0E6EE" BorderThickness="1"
+                            CornerRadius="4">
+                        <Grid>
+                            <!-- データなし時のプレースホルダー -->
+                            <TextBlock
+                                Text="「导入历史 CSV」ボタンで CSV を読み込むと分析結果が表示されます"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Foreground="#BBBBBB"
+                                FontSize="12"
+                                TextWrapping="Wrap"
+                                Margin="20,0"
+                                Visibility="{Binding HasAnalysisData,
+                                             Converter={StaticResource InverseBoolToVisibility}}"/>
+
+                            <!-- データあり時の分析パネル -->
+                            <ScrollViewer
+                                VerticalScrollBarVisibility="Auto"
+                                Visibility="{Binding HasAnalysisData,
+                                             Converter={StaticResource BoolToVisibility}}">
+                                <Grid Margin="14,10,14,10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 行 0: 熱号 / 冷号 / 奇偶 -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 熱号 Top5 -->
+                                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                            <TextBlock Text="热号 Top5"
+                                                       FontSize="11" Foreground="#888888"
+                                                       Margin="0,0,0,3"/>
+                                            <TextBlock Text="{Binding AnalysisHotNumbers}"
+                                                       FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="#C0392B"
+                                                       FontFamily="Consolas, Courier New"/>
+                                        </StackPanel>
+
+                                        <!-- 冷号 Top5 -->
+                                        <StackPanel Grid.Column="1" Margin="8,0,8,0">
+                                            <TextBlock Text="冷号 Top5"
+                                                       FontSize="11" Foreground="#888888"
+                                                       Margin="0,0,0,3"/>
+                                            <TextBlock Text="{Binding AnalysisColdNumbers}"
+                                                       FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="#2980B9"
+                                                       FontFamily="Consolas, Courier New"/>
+                                        </StackPanel>
+
+                                        <!-- 奇偶総数 -->
+                                        <StackPanel Grid.Column="2" Margin="8,0,0,0">
+                                            <TextBlock Text="奇偶総数"
+                                                       FontSize="11" Foreground="#888888"
+                                                       Margin="0,0,0,3"/>
+                                            <TextBlock Text="{Binding AnalysisOddEven}"
+                                                       FontSize="12" Foreground="#444444"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 行 2: 区間分布 -->
+                                    <StackPanel Grid.Row="2">
+                                        <TextBlock Text="区間分布"
+                                                   FontSize="11" Foreground="#888888"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="{Binding AnalysisRanges}"
+                                                   FontSize="12" Foreground="#444444"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <!-- 行 4: 尾数分布 -->
+                                    <StackPanel Grid.Row="4">
+                                        <TextBlock Text="尾数分布（末尾 0〜9 の出現回数）"
+                                                   FontSize="11" Foreground="#888888"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="{Binding AnalysisTailDigits}"
+                                                   FontSize="11" Foreground="#555555"
+                                                   TextWrapping="Wrap"
+                                                   FontFamily="Consolas, Courier New"/>
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
                 </Grid>
             </Border>
         </Grid>

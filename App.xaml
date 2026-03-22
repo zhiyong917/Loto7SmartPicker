@@ -1,8 +1,15 @@
 <Application x:Class="Loto7SmartPicker.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Loto7SmartPicker"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+
+        <!-- ============================================================
+             コンバーター
+        ============================================================ -->
+        <local:BoolToVisibilityConverter        x:Key="BoolToVisibility"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
 
         <!-- ============================================================
              共通カラーリソース
